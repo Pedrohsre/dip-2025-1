@@ -26,9 +26,42 @@ def compute_histogram_intersection(img1: np.ndarray, img2: np.ndarray) -> float:
         raise ValueError("Both input images must be 2D grayscale arrays.")
 
     ### START CODE HERE ###
-    # Step 1: initialize base image with 0.5
-    intersection = 0.0
+    # Compute histograms for both images
+    hist1 = np.histogram(img1, bins=256, range=(0, 256))[0]
+    hist2 = np.histogram(img2, bins=256, range=(0, 256))[0]
+    
+    # Normalize histograms
+    hist1 = hist1 / np.sum(hist1)
+    hist2 = hist2 / np.sum(hist2)
+    
+    # Compute intersection
+    intersection = np.sum(np.minimum(hist1, hist2))
     ### END CODE HERE ###
 
 
     return float(intersection)
+
+
+if __name__ == "__main__":
+    # Teste simples com imagens sintéticas
+    print("Testando a função de interseção de histogramas...")
+    
+    # Teste 1: Imagens idênticas (deve dar 1.0)
+    img1 = np.full((100, 100), 128, dtype=np.uint8)
+    img2 = np.full((100, 100), 128, dtype=np.uint8)
+    resultado1 = compute_histogram_intersection(img1, img2)
+    print(f"Teste 1 - Imagens idênticas: {resultado1:.4f} (esperado: 1.0)")
+    
+    # Teste 2: Imagens diferentes (deve dar 0.0)
+    img3 = np.full((100, 100), 64, dtype=np.uint8)
+    img4 = np.full((100, 100), 192, dtype=np.uint8)
+    resultado2 = compute_histogram_intersection(img3, img4)
+    print(f"Teste 2 - Imagens diferentes: {resultado2:.4f} (esperado: 0.0)")
+    
+    # Teste 3: Imagens com alguma sobreposição
+    img5 = np.random.randint(0, 128, (100, 100), dtype=np.uint8)
+    img6 = np.random.randint(64, 256, (100, 100), dtype=np.uint8)
+    resultado3 = compute_histogram_intersection(img5, img6)
+    print(f"Teste 3 - Imagens com sobreposição parcial: {resultado3:.4f}")
+    
+    print("Testes concluídos!")
