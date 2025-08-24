@@ -113,8 +113,10 @@ def _mse(i1: np.ndarray, i2: np.ndarray) -> float:
         Mean squared error.
     """
     ### START CODE HERE ###
-    ### TODO
-    mse = None
+    # Calculate squared differences
+    squared_diff = (i1 - i2) ** 2
+    # Compute mean
+    mse = np.mean(squared_diff)
     ### END CODE HERE ###
 
     return mse
@@ -140,8 +142,13 @@ def _psnr(i1: np.ndarray, i2: np.ndarray, data_range: float = 1.0) -> float:
         PSNR in decibels (dB), or np.inf if images are identical.
     """
     ### START CODE HERE ###
-    ### TODO
-    psnr = None
+    mse_val = _mse(i1, i2)
+    if mse_val == 0:
+        # Images are identical
+        psnr = np.inf
+    else:
+        # PSNR = 10 * log10((L^2) / MSE)
+        psnr = 10 * np.log10((data_range ** 2) / mse_val)
     ### END CODE HERE ###
 
     return psnr
@@ -170,8 +177,21 @@ def _ssim(i1: np.ndarray, i2: np.ndarray, *, C1: float = 1e-8, C2: float = 1e-8)
         SSIM in approximately [-1, 1] (often near [0, 1] for natural images).
     """
     ### START CODE HERE ###
-    ### TODO
-    ssim = None
+    # Calculate means
+    mu1 = np.mean(i1)
+    mu2 = np.mean(i2)
+    
+    # Calculate variances
+    sigma1_sq = np.var(i1)
+    sigma2_sq = np.var(i2)
+    
+    # Calculate covariance
+    sigma12 = np.mean((i1 - mu1) * (i2 - mu2))
+    
+    # Compute SSIM
+    numerator = (2 * mu1 * mu2 + C1) * (2 * sigma12 + C2)
+    denominator = (mu1**2 + mu2**2 + C1) * (sigma1_sq + sigma2_sq + C2)
+    ssim = numerator / denominator
     ### END CODE HERE ###
 
     return ssim
@@ -199,8 +219,28 @@ def _npcc(i1: np.ndarray, i2: np.ndarray) -> float:
     """
 
     ### START CODE HERE ###
-    ### TODO
-    npcc = None
+    # Calculate means
+    mu1 = np.mean(i1)
+    mu2 = np.mean(i2)
+    
+    # Center the data
+    i1_centered = i1 - mu1
+    i2_centered = i2 - mu2
+    
+    # Calculate covariance
+    numerator = np.sum(i1_centered * i2_centered)
+    
+    # Calculate denominator
+    denominator = np.sqrt(np.sum(i1_centered**2) * np.sum(i2_centered**2))
+    
+    # Handle zero variance
+    if denominator == 0:
+        if np.array_equal(i1, i2):
+            npcc = 1.0
+        else:
+            npcc = 0.0
+    else:
+        npcc = numerator / denominator
     ### END CODE HERE ###
 
     return npcc

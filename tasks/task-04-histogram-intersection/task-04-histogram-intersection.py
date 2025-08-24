@@ -41,7 +41,7 @@ def compute_histogram_intersection(img1: np.ndarray, img2: np.ndarray) -> float:
 
     return float(intersection)
 
-
+'''
 if __name__ == "__main__":
     # Teste simples com imagens sintéticas
     print("Testando a função de interseção de histogramas...")
@@ -65,3 +65,4 @@ if __name__ == "__main__":
     print(f"Teste 3 - Imagens com sobreposição parcial: {resultado3:.4f}")
     
     print("Testes concluídos!")
+'''
