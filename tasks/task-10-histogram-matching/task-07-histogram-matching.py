@@ -26,8 +26,46 @@ Notes:
 
 import cv2 as cv
 import numpy as np
-import scikitimage as ski
 
 def match_histograms_rgb(source_img: np.ndarray, reference_img: np.ndarray) -> np.ndarray:
-    # Your implementation here
-    pass
+    """
+    Match histograms of source image to reference image for each RGB channel
+    
+    Args:
+        source_img: Source image (H, W, 3) RGB format
+        reference_img: Reference image (H, W, 3) RGB format
+        
+    Returns:
+        matched_img: Image with matched histograms (H, W, 3) RGB format
+    """
+    matched_img = np.zeros_like(source_img)
+    
+    # Process each RGB channel separately
+    for channel in range(3):
+        # Get source and reference channels
+        source_channel = source_img[:, :, channel]
+        reference_channel = reference_img[:, :, channel]
+        
+        # Calculate histograms
+        source_hist, _ = np.histogram(source_channel.flatten(), bins=256, range=(0, 256))
+        reference_hist, _ = np.histogram(reference_channel.flatten(), bins=256, range=(0, 256))
+        
+        # Calculate cumulative distribution functions
+        source_cdf = np.cumsum(source_hist).astype(np.float64)
+        reference_cdf = np.cumsum(reference_hist).astype(np.float64)
+        
+        # Normalize
+        source_cdf = source_cdf / source_cdf[-1]
+        reference_cdf = reference_cdf / reference_cdf[-1]
+        
+        # lookup table for histogram matching
+        lookup_table = np.zeros(256, dtype=np.uint8)
+        
+        for i in range(256):
+            j = np.argmin(np.abs(reference_cdf - source_cdf[i]))
+            lookup_table[i] = j
+
+        matched_img[:, :, channel] = lookup_table[source_channel]
+    
+    return matched_img
+
